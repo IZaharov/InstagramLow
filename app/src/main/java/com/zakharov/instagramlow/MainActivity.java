@@ -1,6 +1,8 @@
 package com.zakharov.instagramlow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,22 +39,26 @@ public class MainActivity extends AppCompatActivity {
     String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=1";
     String src;
     //String userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
-    ArrayList list = new ArrayList();
-    ImageView iv;
+    public static ArrayList<String> list = new ArrayList();
+
+    RecyclerView imagesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        iv =  (ImageView) findViewById(R.id.imageView);
-//        Picasso.get().load(url.toString()).into(iv);
+        imagesList = findViewById(R.id.recyclerView);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        imagesList.setLayoutManager(layoutManager);
+        imagesList.setAdapter(new ImagesAdapter());
+
         new NewThread().execute();
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Picasso.get().load(list.get(0).toString()).into(iv);
     }
 
     public class NewThread extends AsyncTask<Void, Void, Void> {
@@ -119,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return null;
         }
     }
