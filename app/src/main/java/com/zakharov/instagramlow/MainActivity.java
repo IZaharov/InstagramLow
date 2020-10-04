@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    String url = "https://yandex.ru/images/search?text=котики";
-    //String url = "https://flickr.com/explore";
+    //String url = "https://yandex.ru/images/search?text=котики";
+    String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=1";
     String src;
     //String userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
     ArrayList list = new ArrayList();
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Picasso.get().load(list.get(1).toString()).into(iv);
+        Picasso.get().load(list.get(0).toString()).into(iv);
     }
 
     public class NewThread extends AsyncTask<Void, Void, Void> {
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             }
             */
 
-            try {
+            /*try {
                 Log.d("DOC", "Start");
                 doc = Jsoup.connect(url)
                         //.userAgent(userAgent)
@@ -99,7 +99,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }*/
+
+            try {
+                Log.d("DOC", "Start");
+                doc = Jsoup.connect(url)
+                        //.userAgent(userAgent)
+                        .get();
+                Log.d("DOC", "End");
+                Log.d("DOC", doc.title());
+                Elements links = doc.select(".list-img.clearfix.tallest");
+                for (Element e : links.select("img")) {
+                    if (e.normalName().equals("img")) {
+                        String imgURL = e.attr("abs:src");
+                        Log.d("DOC", imgURL);
+                        list.add(imgURL);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
             return null;
         }
     }
