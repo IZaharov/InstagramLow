@@ -63,10 +63,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
                 }
 
                 private void SetLike() {
+
                     Picasso.get().load(R.drawable.hearton).into(likeImageView);
                 }
-
-
             });
         }
 

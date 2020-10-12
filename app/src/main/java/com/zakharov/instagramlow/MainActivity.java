@@ -57,12 +57,18 @@ public class MainActivity extends AppCompatActivity {
         imagesList.setLayoutManager(layoutManager);
         imagesList.setAdapter(new ImagesAdapter());
 
-
         try {
             Thread.sleep(4000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        LikeController _likeController = new LikeController(this);
+        _likeController.CreateDataBase();
+        _likeController.InsertIntoDataBase("qqqqqqqqqqqqqqqq1q");
+        Log.d("DOC", _likeController.SelectURLString("qqqqqqqqqqqqqqqq1q"));
+        _likeController.CloseConnection();
+
     }
 
     public static class NewThread extends AsyncTask<Void, Void, Void> {
