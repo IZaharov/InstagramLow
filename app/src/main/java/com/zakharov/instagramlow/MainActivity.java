@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,37 +37,41 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    //String url = "https://yandex.ru/images/search?text=котики";
-    String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=1";
-    String src;
     //String userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
     public static ArrayList<String> list = new ArrayList();
 
     RecyclerView imagesList;
+    static String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=";
+    static int pageNumber = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        new NewThread().execute();
+
         imagesList = findViewById(R.id.recyclerView);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         imagesList.setLayoutManager(layoutManager);
         imagesList.setAdapter(new ImagesAdapter());
 
-        new NewThread().execute();
+
         try {
-            Thread.sleep(3000);
+            Thread.sleep(4000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public class NewThread extends AsyncTask<Void, Void, Void> {
+    public static class NewThread extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             Document doc;
+            //Загрузка картинки с Яндекса в низком разрешении
             /*
+            String url = "https://yandex.ru/images/search?text=котики";
             try {
                 Log.d("DOC", "Start");
                 doc = Jsoup.connect(url)
@@ -86,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             */
-
+            //Загрузка картинки с Яндекса в высоком разрешении
             /*try {
+            String url = "https://yandex.ru/images/search?text=котики";
                 Log.d("DOC", "Start");
                 doc = Jsoup.connect(url)
                         //.userAgent(userAgent)
@@ -108,12 +115,13 @@ public class MainActivity extends AppCompatActivity {
             }*/
 
             try {
-                Log.d("DOC", "Start");
-                doc = Jsoup.connect(url)
+                //Log.d("DOC", "Start");
+                doc = Jsoup.connect(url + pageNumber)
                         //.userAgent(userAgent)
                         .get();
-                Log.d("DOC", "End");
-                Log.d("DOC", doc.title());
+                pageNumber++;
+                //Log.d("DOC", "End");
+                //Log.d("DOC", doc.title());
                 Elements links = doc.select(".list-img.clearfix.tallest");
                 for (Element e : links.select("img")) {
                     if (e.normalName().equals("img")) {

@@ -1,6 +1,8 @@
 package com.zakharov.instagramlow;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
 
     @Override
     public void onBindViewHolder(ImagesViewHolder holder, int position) {
+        if (position == (MainActivity.list.size() - 8)){
+            String str = ""+MainActivity.list.size();
+            Log.d("DOC", "position="+position+" ,list.size="+str);
+            new MainActivity.NewThread().execute();
+        }
+
         holder.bind(MainActivity.list.get(position));
     }
 
