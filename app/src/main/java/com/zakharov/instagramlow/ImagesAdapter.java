@@ -48,15 +48,31 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
     class ImagesViewHolder extends  RecyclerView.ViewHolder{
 
         ImageView imageView;
+        ImageView likeImageView;
 
         public ImagesViewHolder(View itemView) {
             super(itemView);
 
             imageView = itemView.findViewById(R.id.imageView1);
+            likeImageView = itemView.findViewById(R.id.likeImageView);
+
+            likeImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SetLike();
+                }
+
+                private void SetLike() {
+                    Picasso.get().load(R.drawable.hearton).into(likeImageView);
+                }
+
+
+            });
         }
 
         void bind(String url){
             Picasso.get().load(url).into(imageView);
+            Picasso.get().load(R.drawable.heartoff).into(likeImageView);
         }
 
     }
