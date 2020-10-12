@@ -63,11 +63,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        LikeController _likeController = new LikeController(this);
-        _likeController.CreateDataBase();
-        _likeController.InsertIntoDataBase("qqqqqqqqqqqqqqqq1q");
-        Log.d("DOC", _likeController.SelectURLString("qqqqqqqqqqqqqqqq1q"));
-        _likeController.CloseConnection();
 
     }
 

@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import static com.zakharov.instagramlow.MainActivity.list;
+
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesViewHolder> {
 
 
@@ -25,37 +27,44 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
 
         View view = inflater.inflate(layoutIdForImage, parent, false);
 
-        return new ImagesViewHolder(view);
+        return new ImagesViewHolder(view, new LikeController(context));
 
     }
 
     @Override
     public void onBindViewHolder(ImagesViewHolder holder, int position) {
-        if (position == (MainActivity.list.size() - 8)){
-            String str = ""+MainActivity.list.size();
-            Log.d("DOC", "position="+position+" ,list.size="+str);
+        //костыль, чтобы картинки подгружались, когда лента заканчивается
+        if (position == (list.size() - 8)){
+            //String str = ""+MainActivity.list.size();
+            //Log.d("DOC", "position="+position+" ,list.size="+str);
             new MainActivity.NewThread().execute();
         }
 
-        holder.bind(MainActivity.list.get(position));
+        holder.bind(list.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return MainActivity.list.size();
+        return list.size();
     }
 
     class ImagesViewHolder extends  RecyclerView.ViewHolder{
 
         ImageView imageView;
         ImageView likeImageView;
+        LikeController _likeController;
 
-        public ImagesViewHolder(View itemView) {
+        String _currentImage;
+        Integer _currentIndex;
+
+        public ImagesViewHolder(View itemView, LikeController likeController) {
             super(itemView);
 
             imageView = itemView.findViewById(R.id.imageView1);
             likeImageView = itemView.findViewById(R.id.likeImageView);
-
+            _likeController = likeController;
+            _likeController.CreateDataBase();
+            Log.d("LIKE", _likeController.SelectAll());
             likeImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -63,15 +72,32 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
                 }
 
                 private void SetLike() {
+                    if (_likeController.FindImageFromDataBase(_currentImage)){
+                        Log.d("LIKE", "likeoff "+ _currentIndex + " " + _currentImage);
+                        Picasso.get().load(R.drawable.heartoff).into(likeImageView);
+                        _likeController.DeleteFromDataBase(_currentImage);
+                    }
+                    else{
+                        Log.d("LIKE", "likeon "+ _currentIndex + " " + _currentImage);
+                        Picasso.get().load(R.drawable.hearton).into(likeImageView);
+                        _likeController.InsertIntoDataBase(_currentImage);
+                    }
 
-                    Picasso.get().load(R.drawable.hearton).into(likeImageView);
                 }
             });
         }
 
         void bind(String url){
             Picasso.get().load(url).into(imageView);
-            Picasso.get().load(R.drawable.heartoff).into(likeImageView);
+
+            _currentIndex = getAdapterPosition();
+            _currentImage = list.get(_currentIndex);
+            Log.d("LIKE", _currentIndex + " " + _currentImage);
+            if (_likeController.FindImageFromDataBase(_currentImage)){
+                Log.d("LIKE", "лайкнуто " + _currentImage);
+                Picasso.get().load(R.drawable.hearton).into(likeImageView);
+            }
+            else Picasso.get().load(R.drawable.heartoff).into(likeImageView);
         }
 
     }

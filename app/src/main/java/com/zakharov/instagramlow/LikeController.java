@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class LikeController<InitOrCreate> {
     Context _context;
-    String dbName = "sample";
+    String dbName = "sample5";
     String columnName = "image";
     SQLiteDatabase db;
     Cursor query;
@@ -20,7 +20,7 @@ public class LikeController<InitOrCreate> {
         db.execSQL("CREATE TABLE IF NOT EXISTS "+ dbName +" ("+ columnName +" TEXT)");
     }
 
-    public String SelectURLString(String url){
+    public String SelectImageFromDataBase(String url){
         String str = "";
         query = db.rawQuery("SELECT "+ columnName +" FROM "+ dbName +" where "+ columnName +" = '"+ url +"';", null);
         if(query.moveToFirst()){
@@ -29,8 +29,33 @@ public class LikeController<InitOrCreate> {
         return str;
     }
 
+    public String SelectAll(){
+        String str = "";
+        query = db.rawQuery("SELECT * FROM "+ dbName +";", null);
+        if(query.moveToFirst()){
+            do {
+                    str += "\n" + query.getString(0);
+            }
+            while (query.moveToNext());
+        }
+        return str;
+    }
+
     public void InsertIntoDataBase(String url){
         db.execSQL("INSERT INTO "+ dbName +" VALUES ('"+ url +"');");
+    }
+
+    public void DeleteFromDataBase(String url){
+        db.execSQL("DELETE FROM "+ dbName +" WHERE "+ columnName +" = '"+ url +"';");
+    }
+
+    public boolean FindImageFromDataBase(String url){
+        boolean isFinded = false;
+        query = db.rawQuery("SELECT "+ columnName +" FROM "+ dbName +" where "+ columnName +" = '"+ url +"';", null);
+        if(query.moveToFirst()){
+            isFinded = !query.getString(0).isEmpty();
+        }
+        return isFinded;
     }
 
     public void CloseConnection(){
