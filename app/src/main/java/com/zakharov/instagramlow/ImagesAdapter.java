@@ -88,8 +88,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
         }
 
         void bind(String url){
+            //Загрузка картинки в ViewHolder
             Picasso.get().load(url).into(imageView);
 
+            //
             _currentIndex = getAdapterPosition();
             _currentImage = list.get(_currentIndex);
             Log.d("LIKE", _currentIndex + " " + _currentImage);

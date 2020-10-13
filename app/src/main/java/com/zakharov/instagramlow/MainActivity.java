@@ -21,6 +21,15 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
+import com.flickr4java.flickr.REST;
+import com.flickr4java.flickr.Transport;
+import com.flickr4java.flickr.photos.Extras;
+import com.flickr4java.flickr.photos.Photo;
+import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photos.PhotosInterface;
+import com.flickr4java.flickr.photos.SearchParameters;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -29,6 +38,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import static com.flickr4java.flickr.photos.SearchParameters.RELEVANCE;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,10 +58,20 @@ public class MainActivity extends AppCompatActivity {
     static String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=";
     static int pageNumber = 1;
 
+    static Flickr flickr;
+    static String apiKey = "482c6c617a17d28a98b9b4b461864a10";
+    static String sharedSecret = "3bb3cae063e0ad84";
+    Transport t;
+    static String searchTile = "cat";
+    static Integer itemInPage = 20;
+    public static Integer page = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        t = new REST();
+        flickr = new Flickr(apiKey, sharedSecret, t);
 
         new NewThread().execute();
 
@@ -115,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }*/
 
-            try {
+            /*try {
                 //Log.d("DOC", "Start");
                 doc = Jsoup.connect(url + pageNumber)
                         //.userAgent(userAgent)
@@ -133,7 +157,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }*/
+
+            PhotosInterface photos = flickr.getPhotosInterface();
+            SearchParameters params = new SearchParameters();
+            try {
+                params.setMedia("photos"); // One of "photos", "videos" or "all"
+                params.setText(searchTile);
+                params.setSort(RELEVANCE);
+                params.setExtras(Extras.ALL_EXTRAS);
+                PhotoList<Photo> resultsPhoto = photos.search(params, itemInPage, ++page);
+                for (Photo p: resultsPhoto){
+                    list.add(p.getSmallUrl());
+                }
+
+            } catch (FlickrException e) {
+                e.printStackTrace();
             }
+
+
+
+
+
             return null;
         }
     }

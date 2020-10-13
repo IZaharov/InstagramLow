@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class LikeController<InitOrCreate> {
     Context _context;
-    String dbName = "sample5";
+    String dbName = "sample123";
     String columnName = "image";
     SQLiteDatabase db;
     Cursor query;
