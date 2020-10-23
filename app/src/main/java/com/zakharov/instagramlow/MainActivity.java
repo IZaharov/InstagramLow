@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     static String sharedSecret = "3bb3cae063e0ad84";
     Transport t;
     static String searchTile = "cat";
-    static Integer itemInPage = 20;
+    static Integer itemInPage = 25;
     public static Integer page = 1;
 
     @Override
@@ -94,70 +94,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             Document doc;
-            //Загрузка картинки с Яндекса в низком разрешении
-            /*
-            String url = "https://yandex.ru/images/search?text=котики";
-            try {
-                Log.d("DOC", "Start");
-                doc = Jsoup.connect(url)
-                        //.userAgent(userAgent)
-                        .timeout(5000)
-                        .get();
-                Log.d("DOC", "End");
-                Log.d("DOC", doc.title());
-                Elements links = doc.select(".serp-item.serp-item_type_search");
-                for (Element e : links) {
-                    String src = e.attr("data-bem");
-                    JSONObject jsonObj = new JSONObject(src).getJSONObject("serp-item");
-                    String imgURL = jsonObj.getString("img_href");
-                    Log.d("DOC", imgURL);
-                    list.add(imgURL);
-                }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-            */
-            //Загрузка картинки с Яндекса в высоком разрешении
-            /*try {
-            String url = "https://yandex.ru/images/search?text=котики";
-                Log.d("DOC", "Start");
-                doc = Jsoup.connect(url)
-                        //.userAgent(userAgent)
-                        .timeout(5000)
-                        .get();
-                Log.d("DOC", "End");
-                Log.d("DOC", doc.title());
-                Elements links = doc.select("[src]");
-                for (Element e : links) {
-                    if (e.normalName().equals("img")) {
-                        String imgURL = "https:".concat(e.attr("src"));
-                        Log.d("DOC", imgURL);
-                        list.add(imgURL);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-
-            /*try {
-                //Log.d("DOC", "Start");
-                doc = Jsoup.connect(url + pageNumber)
-                        //.userAgent(userAgent)
-                        .get();
-                pageNumber++;
-                //Log.d("DOC", "End");
-                //Log.d("DOC", doc.title());
-                Elements links = doc.select(".list-img.clearfix.tallest");
-                for (Element e : links.select("img")) {
-                    if (e.normalName().equals("img")) {
-                        String imgURL = e.attr("abs:src");
-                        Log.d("DOC", imgURL);
-                        list.add(imgURL);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
 
             PhotosInterface photos = flickr.getPhotosInterface();
             SearchParameters params = new SearchParameters();
@@ -174,11 +110,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (FlickrException e) {
                 e.printStackTrace();
             }
-
-
-
-
-
             return null;
         }
     }

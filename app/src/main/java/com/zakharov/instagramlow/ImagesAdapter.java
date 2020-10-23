@@ -34,7 +34,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImagesView
     @Override
     public void onBindViewHolder(ImagesViewHolder holder, int position) {
         //костыль, чтобы картинки подгружались, когда лента заканчивается
-        if (position == (list.size() - 8)){
+        Log.d("AAA", "position="+position);
+        if (position >= (list.size() - 15)){
+            Log.d("AAA", "position="+position);
             //String str = ""+MainActivity.list.size();
             //Log.d("DOC", "position="+position+" ,list.size="+str);
             new MainActivity.NewThread().execute();
