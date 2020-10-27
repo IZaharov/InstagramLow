@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 import static com.zakharov.instagramlow.MainActivity.list;
@@ -43,17 +42,6 @@ public class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         else if (holder instanceof LoadingViewHolder){
             showLoadingView((LoadingViewHolder) holder, position);
         }
-
-//        //костыль, чтобы картинки подгружались, когда лента заканчивается
-//        Log.d("AAA", "position="+position);
-//        if (position >= (list.size() - 15)){
-//            //Log.d("AAA", "position="+position);
-//            String str = ""+MainActivity.list.size();
-//            Log.d("AAA", "position="+position+" ,list.size="+str);
-//            new MainActivity.AsynkDownload().execute();
-//        }
-//
-//        holder.bind(list.get(position));
     }
 
     @Override
