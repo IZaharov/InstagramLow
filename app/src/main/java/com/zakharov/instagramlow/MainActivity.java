@@ -1,85 +1,37 @@
 package com.zakharov.instagramlow;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.LinearLayout;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
-import com.flickr4java.flickr.REST;
-import com.flickr4java.flickr.Transport;
-import com.flickr4java.flickr.photos.Extras;
-import com.flickr4java.flickr.photos.Photo;
-import com.flickr4java.flickr.photos.PhotoList;
-import com.flickr4java.flickr.photos.PhotosInterface;
-import com.flickr4java.flickr.photos.SearchParameters;
-import com.squareup.picasso.Picasso;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import static com.flickr4java.flickr.photos.SearchParameters.RELEVANCE;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
-    //String userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
     public static ArrayList<String> list = new ArrayList();
-
-    RecyclerView imagesList;
-    static String url = "http://www.freedigitalphotos.net/images/Business_people_g201.html?p=";
-    static int pageNumber = 1;
-
-    static Flickr flickr;
-    static String apiKey = "482c6c617a17d28a98b9b4b461864a10";
-    static String sharedSecret = "3bb3cae063e0ad84";
-    Transport t;
-    static String searchTile = "cat";
-    static Integer itemInPage = 25;
-    public static Integer page = 1;
+    private static ImageParser imageParser = new ImageParser();
+    RecyclerView imagesRecyclerView;
+    boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        t = new REST();
-        flickr = new Flickr(apiKey, sharedSecret, t);
+        new AsynkDownload().execute();
 
-        new NewThread().execute();
-
-        imagesList = findViewById(R.id.recyclerView);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        imagesList.setLayoutManager(layoutManager);
-        imagesList.setAdapter(new ImagesAdapter());
+        imagesRecyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        imagesRecyclerView.setLayoutManager(layoutManager);
+        ImagesAdapter adapter = new ImagesAdapter(this);
+        imagesRecyclerView.setAdapter(adapter);
 
         try {
             Thread.sleep(4000);
@@ -87,37 +39,81 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        imagesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) imagesRecyclerView.getLayoutManager();
+                if (!isLoading){
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == list.size() - 1){
+                        //loadMore();
+                        isLoading = true;
+                        new AsynkNewDownload().execute();
+                    }
+                }
+            }
+        });
 
     }
 
-    public static class NewThread extends AsyncTask<Void, Void, Void> {
+    private void loadMore(){
+        list.add(null);
+        imagesRecyclerView.getAdapter().notifyItemInserted(list.size() - 1);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                list.remove(list.size() - 1);
+                int scrollPosition = list.size();
+                imagesRecyclerView.getAdapter().notifyItemRemoved(scrollPosition);
+                int currentSize = scrollPosition;
+                int nextLimit = currentSize + 10;
+                while (currentSize - 1 < nextLimit) {
+                    list.add("https://live.staticflickr.com/5598/14934282524_344c84246b_c.jpg");
+                    currentSize++;
+                }
+                imagesRecyclerView.getAdapter().notifyDataSetChanged();
+                isLoading = false;
+            }
+        }, 2000);
+    }
+
+    public class AsynkNewDownload extends AsyncTask<Void ,Void, Void>{
+        int index = 0;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            index = list.size();
+            list.add(null);
+            imagesRecyclerView.getAdapter().notifyItemInserted(index);
+        }
+
         @Override
         protected Void doInBackground(Void... voids) {
-            Document doc;
-
-            PhotosInterface photos = flickr.getPhotosInterface();
-            SearchParameters params = new SearchParameters();
-            try {
-                params.setMedia("photos"); // One of "photos", "videos" or "all"
-                params.setText(searchTile);
-                params.setSort(RELEVANCE);
-                params.setExtras(Extras.ALL_EXTRAS);
-                PhotoList<Photo> resultsPhoto = photos.search(params, itemInPage, ++page);
-                for (Photo p: resultsPhoto){
-                    list.add(p.getSmallUrl());
-                }
-
-            } catch (FlickrException e) {
-                e.printStackTrace();
-            }
+            imageParser.downloadImages(list);
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            list.remove(index);
+            imagesRecyclerView.getAdapter().notifyItemRemoved(index);
+            imagesRecyclerView.getAdapter().notifyDataSetChanged();
+            isLoading = false;
         }
     }
 
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
+    public static class AsynkDownload extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            imageParser.downloadImages(list);
+            return null;
+        }
+    }
 }
