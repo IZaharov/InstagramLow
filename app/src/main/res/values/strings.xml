@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">InstagramLow</string>
+    <string name="share_friendly_app_title">share friendly app</string>
+    <string name="chooser">Share this app with ...</string>
 </resources>
